@@ -12,7 +12,6 @@ export default function RoomWithId() {
       if (user?._id) {
         ws.emit("join-room", { id: id, userId: user?._id });
       } else {
-        console.log("Hiiu");
         ws.emit("create-user");
       }
     }
