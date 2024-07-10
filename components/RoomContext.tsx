@@ -3,7 +3,7 @@ import Peer from "peerjs";
 import socketIOClient from "socket.io-client";
 import { useRouter } from "next/router";
 
-const WS = "http://localhost:3030";
+const WS = "http://localhost:3031";
 
 export const RoomContext = createContext<null | any>(null);
 
