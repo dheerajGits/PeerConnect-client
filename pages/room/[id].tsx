@@ -5,18 +5,17 @@ import VideoPlayer from "@/components/VideoPlayer";
 
 export default function RoomWithId() {
   const router = useRouter();
-  const { ws, user, participantId, stream } = useContext(RoomContext);
+  const { ws, user, userId, stream, participantId } = useContext(RoomContext);
   const { id } = router.query;
 
   useEffect(() => {
     if (id) {
-      if (user?._id) {
-        ws.emit("join-room", { id: id, participantId, userId: user._id });
-      } else {
-        ws.emit("create-user");
+      if (!participantId) {
+        console.log("creating attendee");
+        ws.emit("create-attendee", { meetingId: id });
       }
     }
-  }, [id, user, ws]);
+  }, [id, ws]);
 
   return (
     <div>
