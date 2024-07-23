@@ -12,7 +12,7 @@ export default function RoomWithId() {
     if (id) {
       if (!participantId) {
         console.log("creating attendee");
-        ws.emit("create-attendee", { meetingId: id });
+        ws.emit("create-attendee-and-join", { meetingId: id });
       }
     }
   }, [id, ws]);
