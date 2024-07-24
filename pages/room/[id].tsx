@@ -20,7 +20,7 @@ export default function RoomWithId() {
   }, [id, ws]);
 
   return (
-    <div>
+    <div className="grid grid-cols-4 gap-2">
       <VideoPlayer stream={stream} />
       {Object.values(participants as ParticipantState).map((peer) => {
         return <VideoPlayer stream={peer.stream} />;

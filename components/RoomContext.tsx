@@ -11,7 +11,10 @@ import Peer from "peerjs";
 import socketIOClient from "socket.io-client";
 import { useRouter } from "next/router";
 import { ParticipantReducer } from "@/utils/participantReducer";
-import { addParticipantAction } from "@/utils/participantActions";
+import {
+  addParticipantAction,
+  removeParticipantAction,
+} from "@/utils/participantActions";
 import axios from "axios";
 import { Socket } from "dgram";
 
@@ -51,7 +54,6 @@ export default function RoomProvider({ children }: { children: ReactNode }) {
         host: "localhost",
         port: 3030,
         path: "/peerjs",
-        debug: 3,
       });
       initializePeer(peer, ws);
       setUser(peer);
@@ -64,20 +66,22 @@ export default function RoomProvider({ children }: { children: ReactNode }) {
     // to set the availabiltity of the peer
     peer.on("open", (id) => {
       setIsPeerOpen(true);
-      ws.emit("user-ready-to-be-called");
     });
     const callPeer = (participantId: string, stream: MediaStream) => {
       console.log("calling peer");
       const call = peer?.call(participantId, stream);
+      console.log(call);
       call?.on("stream", (participantStream) => {
         dispatch(addParticipantAction(participantId, participantStream));
       });
     };
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
-      .then((stream) => {
-        setStream(stream);
-        ws.on("participant-joined", callPeer);
+      .then((Stream) => {
+        setStream(Stream);
+        ws.on("participant-joined", (participantId: string) => {
+          callPeer(participantId, Stream);
+        });
         user?.on("disconnected", (id) => {
           console.log("Peer disconnected", id);
         });
@@ -91,6 +95,7 @@ export default function RoomProvider({ children }: { children: ReactNode }) {
         user?.on("error", (error) => {
           console.log("error peer", error);
         });
+        ws.emit("user-ready-to-be-called");
       });
   };
 
@@ -108,7 +113,6 @@ export default function RoomProvider({ children }: { children: ReactNode }) {
         host: "localhost",
         port: 3030,
         path: "/peerjs",
-        debug: 3,
       });
       initializePeer(peer, ws);
       setUser(peer);
@@ -126,7 +130,13 @@ export default function RoomProvider({ children }: { children: ReactNode }) {
     meetingId: string;
     participantId: string;
   }) => {
-    console.log("Participant disconnected  ", participantId);
+    console.log(
+      "Participant disconnected with id:",
+      participantId,
+      "from meeting with Id: ",
+      meetingId
+    );
+    dispatch(removeParticipantAction(participantId));
   };
 
   // to recall peer participant

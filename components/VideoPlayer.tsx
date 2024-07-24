@@ -8,8 +8,6 @@ export default function VideoPlayer({ stream }: { stream: MediaStream }) {
     }
   }, [stream]);
   return (
-    <div className="h-20">
-      <video ref={videoRef} autoPlay className="h-full" muted={true}></video>
-    </div>
+    <video ref={videoRef} autoPlay className="h-full" muted={true}></video>
   );
 }
