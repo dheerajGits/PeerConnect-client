@@ -2,10 +2,12 @@ import React, { useContext, useEffect } from "react";
 import { useRouter } from "next/router";
 import { RoomContext } from "@/components/RoomContext";
 import VideoPlayer from "@/components/VideoPlayer";
+import { ParticipantState } from "../../utils/participantReducer";
 
 export default function RoomWithId() {
   const router = useRouter();
-  const { ws, user, userId, stream, participantId } = useContext(RoomContext);
+  const { ws, user, userId, stream, participantId, participants } =
+    useContext(RoomContext);
   const { id } = router.query;
 
   useEffect(() => {
@@ -20,6 +22,9 @@ export default function RoomWithId() {
   return (
     <div>
       <VideoPlayer stream={stream} />
+      {Object.values(participants as ParticipantState).map((peer) => {
+        return <VideoPlayer stream={peer.stream} />;
+      })}
     </div>
   );
 }

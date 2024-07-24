@@ -1,6 +1,6 @@
 import { ADD_PARTICIPANT, REMOVE_PARTICIPANT } from "./participantActions";
 
-type participantState = Record<string, { stream: MediaStream }>;
+export type ParticipantState = Record<string, { stream: MediaStream }>;
 
 type participantAction =
   | {
@@ -12,7 +12,7 @@ type participantAction =
       payload: { participantId: string };
     };
 export const ParticipantReducer = (
-  state: participantState,
+  state: ParticipantState,
   action: participantAction
 ) => {
   switch (action.type) {

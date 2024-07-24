@@ -13,6 +13,7 @@ import { useRouter } from "next/router";
 import { ParticipantReducer } from "@/utils/participantReducer";
 import { addParticipantAction } from "@/utils/participantActions";
 import axios from "axios";
+import { Socket } from "dgram";
 
 const WS = "http://localhost:3031";
 
@@ -22,7 +23,7 @@ const ws = socketIOClient(WS);
 
 export default function RoomProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const isPeerSetting = useRef<boolean>(false);
+  const isPeerSetting = useRef<boolean>(false); // to cater double peer creation problem
   const [user, setUser] = useState<Peer>();
   const [isPeerOpen, setIsPeerOpen] = useState(false);
   const [participantId, setParticipantId] = useState("");
@@ -52,15 +53,46 @@ export default function RoomProvider({ children }: { children: ReactNode }) {
         path: "/peerjs",
         debug: 3,
       });
+      initializePeer(peer, ws);
       setUser(peer);
-      peer.on("open", (id) => {
-        setIsPeerOpen(true);
-        ws.emit("user-ready-to-be-called");
-      });
       router.replace(`/room/${roomId}`);
     },
     [user, isPeerSetting, ws, router]
   );
+
+  const initializePeer = (peer: Peer, ws: any) => {
+    // to set the availabiltity of the peer
+    peer.on("open", (id) => {
+      setIsPeerOpen(true);
+      ws.emit("user-ready-to-be-called");
+    });
+    const callPeer = (participantId: string, stream: MediaStream) => {
+      console.log("calling peer");
+      const call = peer?.call(participantId, stream);
+      call?.on("stream", (participantStream) => {
+        dispatch(addParticipantAction(participantId, participantStream));
+      });
+    };
+    navigator.mediaDevices
+      .getUserMedia({ video: true, audio: true })
+      .then((stream) => {
+        setStream(stream);
+        ws.on("participant-joined", callPeer);
+        user?.on("disconnected", (id) => {
+          console.log("Peer disconnected", id);
+        });
+        user?.on("call", (call) => {
+          call.answer(stream);
+          console.log("got call");
+          call.on("stream", (participantStream) => {
+            dispatch(addParticipantAction(call.peer, participantStream));
+          });
+        });
+        user?.on("error", (error) => {
+          console.log("error peer", error);
+        });
+      });
+  };
 
   // to add the other person to the room
   const createPeerAfterJoin = useCallback(
@@ -78,13 +110,7 @@ export default function RoomProvider({ children }: { children: ReactNode }) {
         path: "/peerjs",
         debug: 3,
       });
-
-      peer.on("open", (id) => {
-        console.log("Peer connected with ID:", id);
-        setIsPeerOpen(true);
-        ws.emit("user-ready-to-be-called", stream);
-      });
-
+      initializePeer(peer, ws);
       setUser(peer);
     },
     [user, participantId, userId, stream]
@@ -129,11 +155,6 @@ export default function RoomProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      navigator.mediaDevices
-        .getUserMedia({ video: true, audio: true })
-        .then((stream) => {
-          setStream(stream);
-        });
     } catch (error) {
       console.error(error);
     }
@@ -153,14 +174,11 @@ export default function RoomProvider({ children }: { children: ReactNode }) {
 
     // initiate a call when a peer joins and send him your stream
     const callPeer = (participantId: string) => {
+      console.log("calling peer");
       const call = user?.call(participantId, stream);
-      if (call) {
-        call.on("stream", (participantStream) => {
-          dispatch(addParticipantAction(participantId, participantStream));
-        });
-      } else {
-        // ws.emit("call-to-peer-failed", participantId);
-      }
+      call?.on("stream", (participantStream) => {
+        dispatch(addParticipantAction(participantId, participantStream));
+      });
     };
     ws.on("participant-joined", callPeer);
     user?.on("disconnected", (id) => {
@@ -169,6 +187,7 @@ export default function RoomProvider({ children }: { children: ReactNode }) {
 
     user?.on("call", (call) => {
       call.answer(stream);
+      console.log("got call");
       call.on("stream", (participantStream) => {
         dispatch(addParticipantAction(call.peer, participantStream));
       });
@@ -180,7 +199,9 @@ export default function RoomProvider({ children }: { children: ReactNode }) {
   }, [isPeerOpen, stream]);
 
   return (
-    <RoomContext.Provider value={{ ws, user, stream, participantId, userId }}>
+    <RoomContext.Provider
+      value={{ ws, user, stream, participantId, userId, participants }}
+    >
       {children}
     </RoomContext.Provider>
   );
