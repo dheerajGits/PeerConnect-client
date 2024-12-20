@@ -180,7 +180,9 @@ export default function RoomProvider({ children }: { children: ReactNode }) {
   }, [isPeerOpen, stream]);
 
   return (
-    <RoomContext.Provider value={{ ws, user, stream, participantId, userId }}>
+    <RoomContext.Provider
+      value={{ ws, user, stream, participantId, userId, participants }}
+    >
       {children}
     </RoomContext.Provider>
   );

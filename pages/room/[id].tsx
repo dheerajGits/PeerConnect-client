@@ -2,10 +2,13 @@ import React, { useContext, useEffect } from "react";
 import { useRouter } from "next/router";
 import { RoomContext } from "@/components/RoomContext";
 import VideoPlayer from "@/components/VideoPlayer";
+import { ParticipantState } from "../../utils/participantReducer";
+import ShareScreenButton from "@/components/ShareScreenButton";
 
 export default function RoomWithId() {
   const router = useRouter();
-  const { ws, user, userId, stream, participantId } = useContext(RoomContext);
+  const { ws, user, userId, stream, participantId, participants } =
+    useContext(RoomContext);
   const { id } = router.query;
 
   useEffect(() => {
@@ -18,8 +21,16 @@ export default function RoomWithId() {
   }, [id, ws]);
 
   return (
-    <div>
-      <VideoPlayer stream={stream} />
+    <div className=" flex flex-col items-center justify-between">
+      <div className="grid grid-cols-4 gap-2">
+        <VideoPlayer stream={stream} />
+        {Object.values(participants as ParticipantState).map((peer, index) => {
+          return <VideoPlayer stream={peer.stream} key={index} />;
+        })}
+      </div>
+      <div className="fixed bottom-2 border-t-2 w-full p-2 flex justify-center">
+        <ShareScreenButton />
+      </div>
     </div>
   );
 }
