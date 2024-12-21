@@ -30,103 +30,6 @@ export default function RoomProvider({ children }: { children: ReactNode }) {
   const [stream, setStream] = useState<MediaStream>();
   const [participants, dispatch] = useReducer(ParticipantReducer, {});
 
-  // to create the first attendee(host), or the one which creats the room
-  const enterRoom = useCallback(
-    ({
-      roomId,
-      User,
-      participant,
-    }: {
-      roomId: string;
-      User: string;
-      participant: string;
-    }) => {
-      if (user || isPeerSetting.current) return;
-      console.log("creating room");
-      isPeerSetting.current = true;
-      setUserId(User);
-      setParticipantId(participant);
-      const peer = new Peer(participant, {
-        host: "localhost",
-        port: 3030,
-        path: "/peerjs",
-        debug: 3,
-      });
-      setUser(peer);
-      peer.on("open", (id) => {
-        setIsPeerOpen(true);
-        ws.emit("user-ready-to-be-called");
-      });
-      router.replace(`/room/${roomId}`);
-    },
-    [user, isPeerSetting, ws, router]
-  );
-
-  // to add the other person to the room
-  const createPeerAfterJoin = useCallback(
-    async ({ User, participant }: { User: string; participant: string }) => {
-      if (user || participantId || userId || isPeerSetting.current) return;
-      isPeerSetting.current = true;
-
-      setParticipantId(participant);
-      setUserId(User);
-      console.log("Creating peer after join");
-
-      const peer = new Peer(participant, {
-        host: "localhost",
-        port: 3030,
-        path: "/peerjs",
-        debug: 3,
-      });
-
-      peer.on("open", (id) => {
-        console.log("Peer connected with ID:", id);
-        setIsPeerOpen(true);
-        ws.emit("user-ready-to-be-called", stream);
-      });
-
-      setUser(peer);
-    },
-    [user, participantId, userId, stream]
-  );
-
-  const handleParticipantData = ({ participants }: { participants: any }) => {
-    console.log(participants);
-  };
-  const handleDisconnect = ({
-    meetingId,
-    participantId,
-  }: {
-    meetingId: string;
-    participantId: string;
-  }) => {
-    console.log("Participant disconnected  ", participantId);
-  };
-
-  // to recall peer participant
-  const recallParticipant = (participantId: string) => {
-    if (!user) {
-      return;
-    }
-    if (!stream) {
-      return;
-    }
-    const call = user.call(participantId, stream);
-    console.log("call", call);
-    if (call) {
-      console.log("call ", call);
-      call.on("stream", (participantStream) => {
-        console.log("sream", participantStream);
-        dispatch(addParticipantAction(participantId, participantStream));
-      });
-    } else {
-      // ws.emit("call-to-peer-failed", {
-      //   callerId: user.id,
-      //   participantId: participantId,
-      // });
-    }
-  };
-
   useEffect(() => {
     try {
       navigator.mediaDevices
@@ -143,16 +46,20 @@ export default function RoomProvider({ children }: { children: ReactNode }) {
     ws.on("user-disconnected", handleDisconnect);
     ws.on("reinitiate-call", recallParticipant);
     ws.on("error", (e) => {
-      console.log(e);
+      console.log("[Error]", e);
     });
   }, []);
 
   useEffect(() => {
     if (!isPeerOpen) return;
+
     if (!stream) return;
+
+    if (!user) return;
 
     // initiate a call when a peer joins and send him your stream
     const callPeer = (participantId: string) => {
+      if (participantId == user.id) return; // calling itself
       const call = user?.call(participantId, stream);
       if (call) {
         call.on("stream", (participantStream) => {
@@ -163,21 +70,118 @@ export default function RoomProvider({ children }: { children: ReactNode }) {
       }
     };
     ws.on("participant-joined", callPeer);
-    user?.on("disconnected", (id) => {
-      console.log("Peer disconnected", id);
+    user.on("disconnected", (id) => {
+      console.log("[PEER DISCONNECTED]", id);
     });
 
-    user?.on("call", (call) => {
+    user.on("call", (call) => {
       call.answer(stream);
       call.on("stream", (participantStream) => {
         dispatch(addParticipantAction(call.peer, participantStream));
       });
+      call.on("error", (e) => {
+        console.log("[ERROR DURING CALL]", e);
+      });
+    });
+    user.on("disconnected", () => {
+      console.log("[PEER DISCONNECTED]");
     });
 
     user?.on("error", (error) => {
-      console.log("error peer", error);
+      console.log("[ERROR PEER]", error);
     });
-  }, [isPeerOpen, stream]);
+    ws.emit("user-ready-to-be-called");
+    setIsPeerOpen(false);
+  }, [isPeerOpen, stream, user]);
+
+  // to create the first attendee(host), or the one which creats the room
+  const enterRoom = useCallback(
+    ({
+      roomId,
+      User,
+      participant,
+    }: {
+      roomId: string;
+      User: string;
+      participant: string;
+    }) => {
+      if (user || isPeerSetting.current) return;
+
+      isPeerSetting.current = true;
+      setUserId(User);
+      setParticipantId(participant);
+      const peer = new Peer(participant, {
+        host: "localhost",
+        port: 3030,
+        path: "/peerjs",
+        debug: 3,
+      });
+      setUser(peer);
+      peer.on("open", (id) => {
+        setIsPeerOpen(true);
+      });
+      router.replace(`/room/${roomId}`);
+    },
+    [user, isPeerSetting, ws, router]
+  );
+
+  // to add the other person to the room
+  const createPeerAfterJoin = useCallback(
+    ({ User, participant }: { User: string; participant: string }) => {
+      if (user || participantId || userId || isPeerSetting.current) return;
+      isPeerSetting.current = true;
+
+      setParticipantId(participant);
+      setUserId(User);
+
+      const peer = new Peer(participant, {
+        host: "localhost",
+        port: 3030,
+        path: "/peerjs",
+        debug: 3,
+      });
+      setUser(peer);
+      peer.on("open", (id) => {
+        setIsPeerOpen(true);
+        ws.emit("user-ready-to-be-called", participant);
+      });
+    },
+    [user, participantId, userId, stream]
+  );
+
+  const handleParticipantData = ({ participants }: { participants: any }) => {
+    // console.log(participants);
+  };
+  const handleDisconnect = ({
+    meetingId,
+    participantId,
+  }: {
+    meetingId: string;
+    participantId: string;
+  }) => {
+    console.log("[PARTICIPANT DISCONNECTED]", participantId);
+  };
+
+  // to recall peer participant
+  const recallParticipant = (participantId: string) => {
+    if (!user) {
+      return;
+    }
+    if (!stream) {
+      return;
+    }
+    const call = user.call(participantId, stream);
+    if (call) {
+      call.on("stream", (participantStream) => {
+        dispatch(addParticipantAction(participantId, participantStream));
+      });
+    } else {
+      // ws.emit("call-to-peer-failed", {
+      //   callerId: user.id,
+      //   participantId: participantId,
+      // });
+    }
+  };
 
   return (
     <RoomContext.Provider
