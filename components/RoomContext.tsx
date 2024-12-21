@@ -11,10 +11,13 @@ import Peer from "peerjs";
 import socketIOClient from "socket.io-client";
 import { useRouter } from "next/router";
 import { ParticipantReducer } from "@/utils/participantReducer";
-import { addParticipantAction } from "@/utils/participantActions";
+import {
+  addParticipantAction,
+  removeParticipantAction,
+} from "@/utils/participantActions";
 import axios from "axios";
 
-const WS = "http://localhost:3031";
+const WS = "http://localhost:3030";
 
 export const RoomContext = createContext<null | any>(null);
 
@@ -160,6 +163,7 @@ export default function RoomProvider({ children }: { children: ReactNode }) {
     participantId: string;
   }) => {
     console.log("[PARTICIPANT DISCONNECTED]", participantId);
+    dispatch(removeParticipantAction(participantId));
   };
 
   // to recall peer participant

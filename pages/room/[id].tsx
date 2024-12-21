@@ -21,8 +21,14 @@ export default function RoomWithId() {
   }, [id, ws]);
 
   return (
-    <div className=" flex flex-col items-center justify-between">
-      <div className="grid grid-cols-4 gap-2">
+    <div className=" flex flex-col items-center justify-between bg-[#110f14] h-screen w-full">
+      <div
+        className={`${
+          participants.length && participants.length > 4
+            ? "grid grid-cols-4 gap-2"
+            : "flex justify-center gap-2"
+        } h-[90%] w-full`}
+      >
         <VideoPlayer stream={stream} />
         {Object.values(participants as ParticipantState).map((peer, index) => {
           return <VideoPlayer stream={peer.stream} key={index} />;
