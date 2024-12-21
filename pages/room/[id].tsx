@@ -26,7 +26,7 @@ export default function RoomWithId() {
         className={`${
           participants.length && participants.length > 4
             ? "grid grid-cols-4 gap-2"
-            : "flex justify-center gap-2"
+            : "flex items-center justify-center gap-2"
         } h-[90%] w-full`}
       >
         <VideoPlayer stream={stream} />

@@ -17,7 +17,7 @@ import {
 } from "@/utils/participantActions";
 import axios from "axios";
 
-const WS = "http://localhost:3030";
+const WS = "http://localhost:3031";
 
 export const RoomContext = createContext<null | any>(null);
 
