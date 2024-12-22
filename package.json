@@ -9,9 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@tailwindcss/typography": "^0.5.13",
     "axios": "^1.7.2",
-    "next": "14.2.4",
+    "dayjs": "^1.11.13",
+    "heroicons": "^2.2.0",
+    "next": "^14.2.21",
     "peerjs": "^1.5.4",
     "react": "^18",
     "react-dom": "^18",

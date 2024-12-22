@@ -17,7 +17,7 @@ import {
 } from "@/utils/participantActions";
 import axios from "axios";
 
-const WS = "http://localhost:3031";
+const WS = "http://localhost:3030";
 
 export const RoomContext = createContext<null | any>(null);
 
@@ -115,7 +115,7 @@ export default function RoomProvider({ children }: { children: ReactNode }) {
       setParticipantId(participant);
       const peer = new Peer(participant, {
         host: "localhost",
-        port: 3030,
+        port: 8080,
         path: "/peerjs",
         debug: 3,
       });
@@ -139,7 +139,7 @@ export default function RoomProvider({ children }: { children: ReactNode }) {
 
       const peer = new Peer(participant, {
         host: "localhost",
-        port: 3030,
+        port: 8080,
         path: "/peerjs",
         debug: 3,
       });
