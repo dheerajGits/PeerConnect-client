@@ -8,11 +8,11 @@ export default function VideoPlayer({ stream }: { stream: MediaStream }) {
     }
   }, [stream]);
   return (
-    <div className="border-white border-2 flex items-center justify-center">
+    <div className="border-white border-2 flex items-center justify-center w-full">
       <video
         ref={videoRef}
         autoPlay
-        className="object-cover"
+        className="object-fill w-full"
         muted={true}
       ></video>
     </div>
