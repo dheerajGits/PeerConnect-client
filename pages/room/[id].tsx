@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { RoomContext } from "@/components/RoomContext";
 import VideoPlayer from "@/components/VideoPlayer";
-import { ParticipantState } from "../../utils/participantReducer";
+import { ParticipantState } from "../../reducers/participantReducer";
 import ShareScreenButton from "@/components/ShareScreenButton";
 import OpenChatButton from "@/components/OpenChatButton";
 import ChatModalSidebar from "@/components/ChatModalSidebar";
@@ -33,9 +33,20 @@ export default function RoomWithId() {
             : "flex items-center justify-center gap-2"
         } h-[90%] w-full`}
       >
-        <VideoPlayer stream={stream} />
+        <VideoPlayer
+          stream={stream}
+          fullWidth={Object.values(participants as ParticipantState).length > 1}
+        />
         {Object.values(participants as ParticipantState).map((peer, index) => {
-          return <VideoPlayer stream={peer.stream} key={index} />;
+          return (
+            <VideoPlayer
+              stream={peer.stream}
+              key={index}
+              fullWidth={
+                Object.values(participants as ParticipantState).length > 1
+              }
+            />
+          );
         })}
       </div>
       <ChatModalSidebar

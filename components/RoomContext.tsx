@@ -10,11 +10,11 @@ import {
 import Peer from "peerjs";
 import socketIOClient from "socket.io-client";
 import { useRouter } from "next/router";
-import { ParticipantReducer } from "@/utils/participantReducer";
+import { ParticipantReducer } from "@/reducers/participantReducer";
 import {
   addParticipantAction,
   removeParticipantAction,
-} from "@/utils/participantActions";
+} from "@/reducers/participantActions";
 import axios from "axios";
 
 const WS = "http://localhost:3030";

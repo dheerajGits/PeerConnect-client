@@ -32,11 +32,10 @@ export default function ChatModalSidebar({
 
   const handleSend = () => {
     if (newMessage.trim() !== "") {
+      sendMessage(ws, newMessage, participantId, roomId);
       setNewMessage("");
       return;
     }
-    sendMessage(ws, newMessage, participantId, roomId);
-    setNewMessage("");
   };
 
   return (
