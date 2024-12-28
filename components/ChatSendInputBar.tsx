@@ -1,4 +1,3 @@
-// import { sendMessage } from "@/utils/";
 import React, { useContext, useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
 import { RoomContext } from "./RoomContext";

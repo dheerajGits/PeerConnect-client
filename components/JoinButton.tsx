@@ -4,7 +4,6 @@ import { RoomContext } from "./RoomContext";
 export default function JoinButton({}) {
   const { ws } = useContext(RoomContext);
   const joinRoom = () => {
-    console.log("hii");
     ws.emit("create-room");
   };
   return (
