@@ -1,8 +1,11 @@
 import React, { useContext, useState } from "react";
 import ChatBubble from "./ChatBubble";
 import { ChevronDoubleLeftIcon } from "@heroicons/react/16/solid";
-import { sendMessage } from "@/utils/IntializeChatModal";
 import { RoomContext } from "@/components/RoomContext";
+import ChatSendInputBar from "./ChatSendInputBar";
+import { useRouter } from "next/router";
+import { InCallMessageRecieved } from "@/utils/Interfaces/ChatInterface";
+import { ChatList } from "@/reducers/ChatReducers";
 
 export default function ChatModalSidebar({
   isOpen,
@@ -13,10 +16,7 @@ export default function ChatModalSidebar({
   toggleChat: React.Dispatch<boolean>;
   messages: { sender: string; text: string }[];
 }) {
-  const { ws, participantId, roomId } = useContext(RoomContext);
-
-  const [newMessage, setNewMessage] = useState("");
-  // dummy messages for testing
+  const { ws, participantId, chats } = useContext(RoomContext);
   messages = [
     { sender: "Dheeraj", text: "Hiii" },
     { sender: "Dheeraj", text: "Hiii" },
@@ -29,14 +29,6 @@ export default function ChatModalSidebar({
     { sender: "Dheeraj", text: "Hiii" },
     { sender: "Dheeraj", text: "Hiii" },
   ];
-
-  const handleSend = () => {
-    if (newMessage.trim() !== "") {
-      sendMessage(ws, newMessage, participantId, roomId);
-      setNewMessage("");
-      return;
-    }
-  };
 
   return (
     <div
@@ -65,31 +57,13 @@ export default function ChatModalSidebar({
           scrollbarWidth: "none",
         }}
       >
-        {messages.map((msg, index) => (
-          <ChatBubble message={msg.text} author={msg.sender} />
-        ))}
+        {chats.map((chat: any, index: number) => {
+          console.log(chat);
+          return <ChatBubble chat={chat} />;
+        })}
       </div>
 
-      <div className="fixed bottom-0 p-2 w-full bg-gray-800 border-t border-gray-700 rounded-xl rounded-t-none">
-        <form
-          className="flex items-center gap-2"
-          onSubmit={(e: any) => {
-            e.preventDefault();
-            handleSend();
-          }}
-        >
-          <input
-            type="text"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Type a message..."
-            className="flex-1 p-2 bg-gray-700 text-white rounded focus:outline-none"
-          />
-          <button className="px-2 py-2 bg-blue-600 rounded hover:bg-blue-500 focus:outline-none">
-            Send
-          </button>
-        </form>
-      </div>
+      <ChatSendInputBar isOpen={isOpen} />
     </div>
   );
 }

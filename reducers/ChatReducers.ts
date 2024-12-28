@@ -8,20 +8,17 @@ import {
   REMOVE_MESSAGE_LIST,
 } from "./ChatActions";
 
-export type MessageList = Record<
-  string,
-  { messageContent: InCallMessageRecieved }
->;
+export type ChatList = InCallMessageRecieved[];
 
 type ChatActions =
   | {
       type: typeof ADD_MESSAGE;
-      payload: { messageId: string; message: InCallMessageRecieved };
+      payload: { message: InCallMessageRecieved };
     }
   | {
       type: typeof ADD_MESSAGE_LIST;
       payload: {
-        messageList: Record<string, { messageContent: InCallMessageRecieved }>;
+        messageList: InCallMessageRecieved[];
       };
     }
   | {
@@ -29,23 +26,23 @@ type ChatActions =
       payload: { messageId: string };
     };
 export const ChatReducers = (
-  state: MessageList,
+  state: ChatList,
   action: ChatActions
-): MessageList => {
+): ChatList => {
   switch (action.type) {
     case ADD_MESSAGE:
-      return {
-        ...state,
-        [action.payload.messageId]: { messageContent: action.payload.message },
-      };
+      return [...state, action.payload.message];
 
     case ADD_MESSAGE_LIST:
-      return {
-        ...state,
-      };
+      return [...state];
 
     case REMOVE_MESSAGE_LIST:
-      const { [action.payload.messageId]: deleted, ...rest } = state;
+      const rest: InCallMessageRecieved[] = [];
+      state.forEach((message: InCallMessageRecieved) => {
+        if (message.id != action.payload.messageId) {
+          rest.push(message);
+        }
+      });
       return rest;
 
     default:

@@ -1,15 +1,18 @@
-import { InCallMessageSent } from "@/utils/Interfaces/ChatInterface";
+import {
+  InCallMessageRecieved,
+  InCallMessageSent,
+} from "@/utils/Interfaces/ChatInterface";
 
 export const ADD_MESSAGE = "ADD_MESSAGE" as const;
 export const ADD_MESSAGE_LIST = "ADD_MESSAGE_LIST" as const;
 export const REMOVE_MESSAGE_LIST = "REMOVE_MESSAGE_LIST" as const;
 
-export const addMessageToList = (message: InCallMessageSent) => ({
+export const addMessageToList = (message: InCallMessageRecieved) => ({
   type: ADD_MESSAGE,
   payload: { message },
 });
 
-export const addMessageList = (messageList: InCallMessageSent[]) => ({
+export const addMessageList = (messageList: InCallMessageRecieved[]) => ({
   type: ADD_MESSAGE_LIST,
   payload: { messageList },
 });

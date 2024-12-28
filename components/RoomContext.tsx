@@ -16,6 +16,14 @@ import {
   removeParticipantAction,
 } from "@/reducers/participantActions";
 import axios from "axios";
+import ChatModule from "../utils/ChatModal";
+import { ChatReducers } from "@/reducers/ChatReducers";
+import { InCallMessageRecieved } from "@/utils/Interfaces/ChatInterface";
+import {
+  addMessageList,
+  addMessageToList,
+  removeMessageFromList,
+} from "@/reducers/ChatActions";
 
 const WS = "http://localhost:3030";
 
@@ -32,6 +40,8 @@ export default function RoomProvider({ children }: { children: ReactNode }) {
   const [userId, setUserId] = useState("");
   const [stream, setStream] = useState<MediaStream>();
   const [participants, dispatch] = useReducer(ParticipantReducer, {});
+  const [Chat, setChat] = useState<ChatModule | undefined>();
+  const [chats, chatDispatch] = useReducer(ChatReducers, []);
 
   useEffect(() => {
     try {
@@ -48,10 +58,27 @@ export default function RoomProvider({ children }: { children: ReactNode }) {
     ws.on("get-users", handleParticipantData);
     ws.on("user-disconnected", handleDisconnect);
     ws.on("reinitiate-call", recallParticipant);
+    if (!Chat) {
+      // initializing chat modal by creating an instance of ChatModal class
+
+      const chatModal = new ChatModule(
+        ws,
+        (message: InCallMessageRecieved) => {
+          chatDispatch(addMessageToList(message));
+        },
+        (messageList: InCallMessageRecieved[]) => {
+          chatDispatch(addMessageList(messageList));
+        },
+        (messageId: string) => {
+          chatDispatch(removeMessageFromList(messageId));
+        }
+      );
+      setChat(chatModal);
+    }
     ws.on("error", (e) => {
       console.log("[Error]", e);
     });
-  }, []);
+  }, [ws, Chat]);
 
   useEffect(() => {
     if (!isPeerOpen) return;
@@ -94,6 +121,7 @@ export default function RoomProvider({ children }: { children: ReactNode }) {
       console.log("[ERROR PEER]", error);
     });
     ws.emit("user-ready-to-be-called");
+    Chat?.intializeChatModal(); // initialize the chat module
     setIsPeerOpen(false);
   }, [isPeerOpen, stream, user]);
 
@@ -189,7 +217,16 @@ export default function RoomProvider({ children }: { children: ReactNode }) {
 
   return (
     <RoomContext.Provider
-      value={{ ws, user, stream, participantId, userId, participants }}
+      value={{
+        ws,
+        user,
+        stream,
+        participantId,
+        userId,
+        participants,
+        Chat,
+        chats,
+      }}
     >
       {children}
     </RoomContext.Provider>
