@@ -9,10 +9,24 @@ import ChatModalSidebar from "@/components/ChatModalSidebar";
 
 export default function RoomWithId() {
   const router = useRouter();
-  const { ws, user, userId, stream, participantId, participants } =
-    useContext(RoomContext);
+  const {
+    ws,
+    user,
+    userId,
+    stream,
+    participantId,
+    participants,
+    setStartWebSocketConnection,
+    startWebSocketConnection,
+  } = useContext(RoomContext);
+
   const [openChatModal, setOpenChatModal] = useState<boolean>(false);
   const { id } = router.query;
+
+  useEffect(() => {
+    if (startWebSocketConnection) return;
+    setStartWebSocketConnection(true);
+  }, []);
 
   useEffect(() => {
     if (id) {

@@ -2,8 +2,9 @@ import React, { useContext } from "react";
 import { RoomContext } from "./RoomContext";
 
 export default function JoinButton({}) {
-  const { ws } = useContext(RoomContext);
+  const { ws, setStartWebSocketConnection } = useContext(RoomContext);
   const joinRoom = () => {
+    setStartWebSocketConnection(true);
     ws.emit("create-room");
   };
   return (

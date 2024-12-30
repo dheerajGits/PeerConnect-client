@@ -42,43 +42,13 @@ export default function RoomProvider({ children }: { children: ReactNode }) {
   const [participants, dispatch] = useReducer(ParticipantReducer, {});
   const [Chat, setChat] = useState<ChatModule | undefined>();
   const [chats, chatDispatch] = useReducer(ChatReducers, []);
+  const [startWebSocketConnection, setStartWebSocketConnection] =
+    useState<boolean>(false);
 
   useEffect(() => {
-    try {
-      navigator.mediaDevices
-        .getUserMedia({ video: true, audio: true })
-        .then((stream) => {
-          setStream(stream);
-        });
-    } catch (error) {
-      console.error(error);
-    }
-    ws.on("room-created", enterRoom);
-    ws.on("create-user-afterJoin", createPeerAfterJoin);
-    ws.on("get-users", handleParticipantData);
-    ws.on("user-disconnected", handleDisconnect);
-    ws.on("reinitiate-call", recallParticipant);
-    if (!Chat) {
-      // initializing chat modal by creating an instance of ChatModal class
-
-      const chatModal = new ChatModule(
-        ws,
-        (message: InCallMessageRecieved) => {
-          chatDispatch(addMessageToList(message));
-        },
-        (messageList: InCallMessageRecieved[]) => {
-          chatDispatch(addMessageList(messageList));
-        },
-        (messageId: string) => {
-          chatDispatch(removeMessageFromList(messageId));
-        }
-      );
-      setChat(chatModal);
-    }
-    ws.on("error", (e) => {
-      console.log("[Error]", e);
-    });
-  }, [ws, Chat]);
+    if (!startWebSocketConnection) return;
+    initializeWebsocketConnection();
+  }, [ws, Chat, startWebSocketConnection]);
 
   useEffect(() => {
     if (!isPeerOpen) return;
@@ -86,7 +56,6 @@ export default function RoomProvider({ children }: { children: ReactNode }) {
     if (!stream) return;
 
     if (!user) return;
-
     // initiate a call when a peer joins and send him your stream
     const callPeer = (participantId: string) => {
       if (participantId == user.id) return; // calling itself
@@ -124,6 +93,43 @@ export default function RoomProvider({ children }: { children: ReactNode }) {
     Chat?.intializeChatModal(); // initialize the chat module
     setIsPeerOpen(false);
   }, [isPeerOpen, stream, user]);
+
+  const initializeWebsocketConnection = () => {
+    try {
+      navigator.mediaDevices
+        .getUserMedia({ video: true, audio: true })
+        .then((stream) => {
+          setStream(stream);
+        });
+    } catch (error) {
+      console.error(error);
+    }
+    ws.on("room-created", enterRoom);
+    ws.on("create-user-afterJoin", createPeerAfterJoin);
+    ws.on("get-users", handleParticipantData);
+    ws.on("user-disconnected", handleDisconnect);
+    ws.on("reinitiate-call", recallParticipant);
+    if (!Chat) {
+      // initializing chat modal by creating an instance of ChatModal class
+
+      const chatModal = new ChatModule(
+        ws,
+        (message: InCallMessageRecieved) => {
+          chatDispatch(addMessageToList(message));
+        },
+        (messageList: InCallMessageRecieved[]) => {
+          chatDispatch(addMessageList(messageList));
+        },
+        (messageId: string) => {
+          chatDispatch(removeMessageFromList(messageId));
+        }
+      );
+      setChat(chatModal);
+    }
+    ws.on("error", (e) => {
+      console.log("[Error]", e);
+    });
+  };
 
   // to create the first attendee(host), or the one which creats the room
   const enterRoom = useCallback(
@@ -226,6 +232,8 @@ export default function RoomProvider({ children }: { children: ReactNode }) {
         participants,
         Chat,
         chats,
+        setStartWebSocketConnection,
+        startWebSocketConnection,
       }}
     >
       {children}
