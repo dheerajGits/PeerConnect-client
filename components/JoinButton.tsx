@@ -5,7 +5,9 @@ export default function JoinButton({}) {
   const { ws, setStartWebSocketConnection } = useContext(RoomContext);
   const joinRoom = () => {
     setStartWebSocketConnection(true);
-    ws.emit("create-room");
+    ws.emit("create-room", {
+      participantName: "",
+    });
   };
   return (
     <button

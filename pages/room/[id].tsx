@@ -31,8 +31,10 @@ export default function RoomWithId() {
   useEffect(() => {
     if (id) {
       if (!participantId) {
-        console.log("creating attendee");
-        ws.emit("create-attendee-and-join", { meetingId: id });
+        ws.emit("create-attendee-and-join", {
+          meetingId: id,
+          participantName: "",
+        });
       }
     }
   }, [id, ws]);
@@ -59,6 +61,8 @@ export default function RoomWithId() {
               fullWidth={
                 Object.values(participants as ParticipantState).length > 1
               }
+              videoClassName="h-[90%]"
+              className="h-[90%]"
             />
           );
         })}
