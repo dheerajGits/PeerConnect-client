@@ -1,40 +1,87 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## PeerConnect Client 🚀
 
-## Getting Started
+The **PeerConnect Client** is the frontend application of the PeerConnect platform, enabling seamless real-time peer-to-peer communication using WebRTC. This client interacts with the backend to establish WebSocket connections and manage signaling for WebRTC calls using Peerjs.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### 🌟 Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Real-time audio and video communication.
+- Peer-to-peer connection using Peerjs.
+- Dynamic room creation and participant management.
+- Chat feature for text-based communication.
+- Secure connections and event signaling via WebSocket.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+---
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+### 🛠 Tech Stack
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+- **Next**: Frontend framework for building the user interface.
+- **Tailwind**: Styling for modern and responsive design.
+- **WebRTC**: For peer-to-peer media streaming, implemented using Peerjs.
+- **WebSockets**: For signaling, event management and real-time communication and chat.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+---
 
-## Learn More
+### 🚀 Getting Started
 
-To learn more about Next.js, take a look at the following resources:
+#### Installation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Clone the repository:**
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+   ```bash
+   git clone https://github.com/dheerajGits/PeerConnect-client.git
+   cd PeerConnect-client` 
 
-## Deploy on Vercel
+2.  **Install dependencies:**
+    
+    ```bash    
+    `npm install
+3.  **Environment Setup:**
+    
+    Create a `.env.local` file in the project root and add the following variables:
+    
+    env
+    ```bash    
+    MAIN_API_URL=<Backend API URL># http://localhost:3030
+    MAIN_PEERJS_SERVER_URL=<PEERJS SERVER URL>` #http://localhost:8080
+    
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+----------
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+### Running the Application
+
+1.  Start the development server:
+    
+    ```bash
+    npm run dev 
+2.  Open your browser and navigate to:  
+    `http://localhost:3000`
+    
+
+----------
+
+
+### 🤝 Contributing
+
+Contributions are welcome! If you'd like to contribute, please:
+
+1.  Fork the repository.
+2.  Create a feature branch (`git checkout -b feature-name`).
+3.  Commit your changes (`git commit -m "Add feature"`).
+4.  Push to the branch (`git push origin feature-name`).
+5.  Open a Pull Request.
+
+----------
+
+### 📧 Contact
+
+For queries or suggestions, feel free to reach out:
+
+-   **Author**: Dheeraj Sharma (dheerajGits)
+-   **Email**: dheerajsadan2002@gmail.com
+-   **LinkedIn**: [Dheeraj Sharma](https://www.linkedin.com/in/dheeraj-sharma-000872239)
+
+----------
+
+Let's connect the world one peer at a time! 🌐
