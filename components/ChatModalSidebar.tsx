@@ -17,18 +17,6 @@ export default function ChatModalSidebar({
   messages: { sender: string; text: string }[];
 }) {
   const { ws, participantId, chats } = useContext(RoomContext);
-  messages = [
-    { sender: "Dheeraj", text: "Hiii" },
-    { sender: "Dheeraj", text: "Hiii" },
-    { sender: "Dheeraj", text: "Hiii" },
-    { sender: "Dheeraj", text: "Hiii" },
-    { sender: "Dheeraj", text: "Hiii" },
-    { sender: "Dheeraj", text: "Hiii" },
-    { sender: "Dheeraj", text: "Hiii" },
-    { sender: "Dheeraj", text: "Hiii" },
-    { sender: "Dheeraj", text: "Hiii" },
-    { sender: "Dheeraj", text: "Hiii" },
-  ];
 
   return (
     <div
@@ -58,8 +46,7 @@ export default function ChatModalSidebar({
         }}
       >
         {chats.map((chat: any, index: number) => {
-          console.log(chat);
-          return <ChatBubble chat={chat} />;
+          return <ChatBubble chat={chat} key={index} />;
         })}
       </div>
 
